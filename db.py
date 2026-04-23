@@ -1,17 +1,18 @@
+import pymysql
+pymysql.install_as_MySQLdb()
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-DATABASE_URL = "mysql+mysqldb://srJ4FHEkidWpp2C.root:4FoxBli4jvgz3hzx@gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/test?ssl_mode=VERIFY_IDENTITY&ssl_ca=<CA_PATH>"
+DATABASE_URL = "mysql+pymysql://srJ4FHEkidWpp2C.root:4FoxBli4jvgz3hzx@gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/test"
 
-engine = create_engine(
+engine = create_engine( 
     DATABASE_URL,
-    pool_pre_ping=True,
     connect_args={
-        "ssl":{
-            "ssl":True
+        "ssl": {
+            "ssl_ca": "ca.pem"
         }
     }
-)
+    )
 
 SessionLocal = sessionmaker(bind=engine)
-Base = declarative_base
+Base = declarative_base()
