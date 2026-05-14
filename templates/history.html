@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Your History</h2>
-{% for r in reports%}
+{% for r in reports %}
 <div class="card">
     <p><strong>Resume Preview:</strong></p>
     <p>{{ r.resume[:150] }}</p>
