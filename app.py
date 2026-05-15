@@ -88,6 +88,27 @@ def dashboard():
                 except Exception as e:
                     result = {"error:" f"Docx error:{str(e)}"}
                     
+        if resume_text and user_goal:
+            try:
+                result = analyze_resume(resume_text, user_goal)
+
+                db = SessionLocal()
+                user = db.query(models.User).filter_by(email=session["user"]).first()
+
+                report = models.Reports(
+                    user_id = user.id,
+                    resume_text = resume_text
+                    results = json.dumps(result)
+                )
+
+                db.add()
+                db.commit()
+            
+            except Exception as e:
+                result = {"error": f"AI error: {str(e)}"}
+        return render_template("dashboard.html",user=session["user"],result=result)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
 
