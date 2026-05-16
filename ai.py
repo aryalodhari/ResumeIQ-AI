@@ -1,49 +1,67 @@
 from openai import OpenAI
+from dotenv import load_dotenv
+import os
 import json
 
-client = OpenAI()
+# Load .env file
+load_dotenv()
+
+# Read API key
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY")
+)
 
 def analyze_resume(resume_text, user_goal):
+
     prompt = f"""
-You are a senior software enginer and hiring manager.
+You are a senior software engineer and hiring manager.
 
-Evalute the resume based on the user's goal.
+Evaluate the resume based on the user's goal.
 
-User goal:"{user_goal}"
+User goal: "{user_goal}"
 
 STRICT RULES:
--Extract only relevent skills for this goal
--REMOVE irrelevant tools [excel for backend,etc]
--Identify real gaps
--Generate roadmap only for missing fields
--Make output DIFFERENT based on goal
+- Extract only relevant skills for this goal
+- Remove irrelevant tools
+- Identify real gaps
+- Generate roadmap only for missing fields
+- Make output different based on goal
 
 Return JSON only:
+
 {{
-"skills": [],
-"missing_skills": [],
-"roadmap": [],
-"interview_questions": []
+    "skills": [],
+    "missing_skills": [],
+    "roadmap": [],
+    "interview_questions": []
 }}
 
-Resume:{resume_text}
-
+Resume:
+{resume_text}
 """
+
     try:
         response = client.chat.completions.create(
             model="gpt-4.1-mini",
             temperature=0.3,
-            messages= [
-                {"role": "system", "content":"you are a strict hiring manager."}
-                {"role": "user", "content": prompt}
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a strict hiring manager."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
             ]
         )
+
         content = response.choices[0].message.content.strip()
 
-        start = content.find("{")
-        end = content.rfind("}")+1
+        # Convert AI output into Python dictionary
+        result = json.loads(content)
 
-        return json.loads(content[start:end])
+        return result
 
     except Exception as e:
         return {
@@ -51,6 +69,5 @@ Resume:{resume_text}
             "missing_skills": [],
             "roadmap": [],
             "interview_questions": [],
-            "error" : str(e)
+            "error": str(e)
         }
-    
