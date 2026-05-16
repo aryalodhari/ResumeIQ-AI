@@ -33,7 +33,7 @@ Resume:{resume_text}
         response = client.chat.completions.create(
             model="gpt-4.1-mini",
             temperature=0.3,
-            messages=[
+            messages= [
                 {"role": "system", "content":"you are a strict hiring manager."}
                 {"role": "user", "content": prompt}
             ]

@@ -107,6 +107,37 @@ def dashboard():
             except Exception as e:
                 result = {"error": f"AI error: {str(e)}"}
         return render_template("dashboard.html",user=session["user"],result=result)
+    
+@app.route('/history')
+def history():
+    if "user" not in session:
+        return redirect("/login")
+    
+    db = SessionLocal()
+    user = db.query(models.User).filter_by(email=session["user"]).first()
+
+    reports = db.query(models.Reports).filter_by(user_id = user.id).all()
+
+    #convert JSON strind > dict
+    parsed_reports = []
+    for r in reports:
+        try:
+            parsed_result = json.loads(r.result)
+        except:
+            parsed_result = []
+
+        parsed_reports.append(
+            {
+                "resume":r.resume_text,
+                "result":parsed_result
+            }
+        )
+    return render_template("history.html",reports=parsed_reports)
+
+@app.route('/logout')
+def logout():
+    session.pop("user", None)
+    return redirect("/login")
 
 
 if __name__ == "__main__":
