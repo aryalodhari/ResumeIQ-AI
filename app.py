@@ -49,7 +49,7 @@ def signup():
         hashed_password = bcrypt.hashpw(
             password.encode("utf-8"),
             bcrypt.gensalt()
-        )
+        ).decode('utf-8')
 
         user = models.User(
             email=email,
@@ -76,10 +76,15 @@ def login():
 
         user = db.query(models.User).filter_by(
             email=email,
-            password=password
         ).first()
 
-        if user and bcrypt.checkpw(
+        # Debug prints
+        print("Entered password:", password)
+
+        if user:
+            print("Stored password:", user.password)
+
+        if bcrypt.checkpw(
             password.encode("utf-8"),
             user.password.encode("utf-8")
         ):
@@ -164,7 +169,7 @@ def dashboard():
                 report = models.Reports(
                     user_id=user.id,
                     resume_text=resume_text,
-                    results=json.dumps(result)
+                    result=json.dumps(result)
                 )
 
                 db.add(report)
@@ -204,7 +209,7 @@ def history():
     for r in reports:
 
         try:
-            parsed_result = json.loads(r.results)
+            parsed_result = json.loads(r.result)
 
         except:
             parsed_result = {}

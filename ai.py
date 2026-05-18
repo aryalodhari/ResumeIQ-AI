@@ -1,14 +1,12 @@
-from openai import OpenAI
+from google import genai
 from dotenv import load_dotenv
 import os
 import json
 
-# Load .env file
 load_dotenv()
 
-# Read API key
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
+client = genai.Client(
+    api_key=os.getenv("GEMINI_API_KEY")
 )
 
 def analyze_resume(resume_text, user_goal):
@@ -18,22 +16,22 @@ You are a senior software engineer and hiring manager.
 
 Evaluate the resume based on the user's goal.
 
-User goal: "{user_goal}"
+User Goal: "{user_goal}"
 
 STRICT RULES:
-- Extract only relevant skills for this goal
+- Extract only relevant skills
 - Remove irrelevant tools
 - Identify real gaps
-- Generate roadmap only for missing fields
-- Make output different based on goal
+- Generate roadmap only for missing skills
+- Generate interview questions
 
 Return JSON only:
 
 {{
-    "skills": [],
-    "missing_skills": [],
-    "roadmap": [],
-    "interview_questions": []
+"skills": [],
+"missing_skills": [],
+"roadmap": [],
+"interview_questions": []
 }}
 
 Resume:
@@ -41,29 +39,22 @@ Resume:
 """
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4.1-mini",
-            temperature=0.3,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are a strict hiring manager."
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
+
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
         )
 
-        content = response.choices[0].message.content.strip()
+        content = response.text.strip()
 
-        # Convert AI output into Python dictionary
-        result = json.loads(content)
+        # Remove markdown formatting if present
+        content = content.replace("```json", "")
+        content = content.replace("```", "")
 
-        return result
+        return json.loads(content)
 
     except Exception as e:
+
         return {
             "skills": [],
             "missing_skills": [],

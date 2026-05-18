@@ -3,12 +3,15 @@ from db import Base
 
 class User(Base):
     __tablename__ = "Users"
+
     id = Column(Integer, primary_key=True)
     email = Column(String(100), unique=True)
-    password = Column(String(100))
+    password = Column(String(255))
+
 
 class Reports(Base):
     __tablename__ = "Reports"
+
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("Users.id"))
     resume_text = Column(Text)
